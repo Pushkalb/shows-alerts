@@ -151,30 +151,33 @@ def main():
                 latest = get_latest_tv_episode(name)
         except Exception as e:
             print(f"Error checking '{name}': {e}")
+            notify(f"Error checking {name}", str(e))
             continue
 
         if not latest:
             print(f"No episode data found for '{name}'")
+            notify(f"Not found: {name}", "Check the show name matches TVMaze/AniList exactly.")
             continue
 
+        date_str = f" (aired {latest['air_date']})" if latest.get("air_date") else ""
         prev = state.get(key, {}).get("last_episode")
+        show_title = latest["show_title"]
 
         if prev != latest["id"]:
-            print(f"New episode for '{name}': {latest['id']}")
-            title = f"New episode: {latest['show_title']}"
-            message = latest["id"]
+            print(f"New episode for '{name}': {latest['id']}{date_str}")
+            message = f"{show_title}: {latest['id']}{date_str}"
             if latest["title"]:
                 message += f" — {latest['title']}"
-            if latest.get("air_date"):
-                message += f" (aired {latest['air_date']})"
-            notify(title, message)
+            notify("NEW EPISODE", message)
             state[key] = {
                 "last_episode": latest["id"],
                 "checked_at": datetime.now(timezone.utc).isoformat(),
             }
             changed = True
         else:
-            print(f"No new episode for '{name}' (still {prev})")
+            print(f"No new episode for '{name}' (still {prev}){date_str}")
+            message = f"{show_title}: still {prev}{date_str}"
+            notify("NO NEW EPISODE", message)
 
     if changed:
         save_json(STATE_FILE, state)
