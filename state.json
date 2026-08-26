@@ -1,1 +1,10 @@
-{}
+{
+  "tv:Lanterns": {
+    "last_episode": "S01E02",
+    "checked_at": "2026-08-26T21:23:15.287206+00:00"
+  },
+  "anime:Bleach: Thousand-Year Blood War": {
+    "last_episode": "E13",
+    "checked_at": "2026-08-26T21:23:15.904807+00:00"
+  }
+}
