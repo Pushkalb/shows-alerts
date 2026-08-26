@@ -73,6 +73,7 @@ def get_latest_tv_episode(name):
         "id": f"S{latest['season']:02d}E{latest['number']:02d}",
         "title": latest.get("name") or "",
         "show_title": show["name"],
+        "air_date": latest.get("airdate") or "",
     }
 
 
@@ -119,10 +120,17 @@ def get_latest_anime_episode(name):
         return None
 
     latest = nodes[0]
+    air_date = ""
+    if latest.get("airingAt"):
+        air_date = datetime.fromtimestamp(
+            latest["airingAt"], tz=timezone.utc
+        ).strftime("%Y-%m-%d")
+
     return {
         "id": f"E{latest['episode']:02d}",
         "title": "",
         "show_title": romaji,
+        "air_date": air_date,
     }
 
 
@@ -154,7 +162,11 @@ def main():
         if prev != latest["id"]:
             print(f"New episode for '{name}': {latest['id']}")
             title = f"New episode: {latest['show_title']}"
-            message = latest["id"] + (f" — {latest['title']}" if latest["title"] else "")
+            message = latest["id"]
+            if latest["title"]:
+                message += f" — {latest['title']}"
+            if latest.get("air_date"):
+                message += f" (aired {latest['air_date']})"
             notify(title, message)
             state[key] = {
                 "last_episode": latest["id"],
